@@ -1201,7 +1201,7 @@ char* JsonAstBuilder::EscapeString(const char* string)
   // of the input string.
   // 6 times the length is the maximum length the unescaped string could reach,
   // and that's when each char expand to be written in the form '\u00XX'.
-  size_t unescaped_string_size = 2 * string_length + 1;
+  size_t unescaped_string_size = 6 * string_length + 1;
   char* unescaped_string = NewArray<char>(unescaped_string_size);
   size_t pos = 0;
   char ch = *string;
