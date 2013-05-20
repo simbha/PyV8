@@ -86,7 +86,7 @@ PYTHON_HOME = os.environ.get('PYTHON_HOME', PYTHON_HOME)
 V8_HOME = os.environ.get('V8_HOME', V8_HOME)
 V8_SVN_URL = os.environ.get('V8_SVN_URL', V8_SVN_URL)
 INCLUDE = os.environ.get('INCLUDE', INCLUDE)
-LIB = os.environ.get('LIB', LIB)
+LIB = []
 DEBUG = os.environ.get('DEBUG', DEBUG)
 MAKE = os.environ.get('MAKE', MAKE)
 
@@ -154,7 +154,7 @@ if INCLUDE:
     include_dirs += [p for p in INCLUDE.split(os.path.pathsep) if p]
 if LIB:
     library_dirs += [p for p in LIB.split(os.path.pathsep) if p]
-
+    
 if is_winnt:
     import platform
     is_64bit = platform.architecture()[0] == "64bit"
@@ -163,8 +163,9 @@ if is_winnt:
         BOOST_HOME,
         os.path.join(PYTHON_HOME, 'include'),
     ]
+    
     library_dirs += [
-        os.path.join(BOOST_HOME, 'stage/lib'),
+        os.path.join(BOOST_HOME, 'stage','lib'),
         os.path.join(BOOST_HOME, 'lib'),
         os.path.join(PYTHON_HOME, 'libs'),
     ]
@@ -189,8 +190,8 @@ if is_winnt:
     if DEBUG:
         extra_link_args += ["/DEBUG"]
 
-    os.putenv('MSSdk', 'true')
-    os.putenv('DISTUTILS_USE_SDK', 'true')
+    #os.putenv('MSSdk', 'true')
+    #os.putenv('DISTUTILS_USE_SDK', 'true')
 elif is_linux or is_freebsd:
     if BOOST_HOME:
         boost_lib_dir = os.path.join(BOOST_HOME, 'stage/lib')
@@ -428,7 +429,7 @@ def build_v8():
     print("=" * 20)
 
     if is_winnt:
-        options['env'] = '"PATH:%PATH%,INCLUDE:%INCLUDE%,LIB:%LIB%"'
+        #options['env'] = '"PATH:%PATH%,INCLUDE:%INCLUDE%"'
 
         if not os.path.isdir(os.path.join(V8_HOME, 'third_party', 'cygwin')):
             cmdline = 'svn co http://src.chromium.org/svn/trunk/deps/third_party/cygwin@66844 third_party/cygwin'
