@@ -3,6 +3,32 @@
 #include "Wrapper.h"
 #include "Engine.h"
 
+
+// Extracts a C string from a V8 Utf8Value.
+const char* ToCString(const v8::String::Utf8Value& value) {
+  return *value ? *value : "<string conversion failed>";
+}
+
+
+v8::Handle<v8::Value> Print(const v8::Arguments& args) {
+  bool first = true;
+  for (int i = 0; i < args.Length(); i++) {
+    v8::HandleScope handle_scope(args.GetIsolate());
+    if (first) {
+      first = false;
+    } else {
+      printf(" ");
+    }
+    v8::String::Utf8Value str(args[i]);
+    const char* cstr = ToCString(str);
+    printf("%s", cstr);
+  }
+  printf("\n");
+  fflush(stdout);
+  return v8::Undefined();
+}
+
+
 void CContext::Expose(void)
 {
   py::class_<CIsolate, boost::noncopyable>("JSIsolate", "JSIsolate is an isolated instance of the V8 engine.", py::no_init)
@@ -122,7 +148,10 @@ CContext::CContext(py::object global, py::list extensions)
 
   if (!ext_ptrs.empty()) cfg.reset(new v8::ExtensionConfiguration(ext_ptrs.size(), &ext_ptrs[0]));
   
-  m_context = v8::Context::New(cfg.get());
+  v8::Handle<v8::ObjectTemplate> global_print = v8::ObjectTemplate::New();
+  // Bind the global 'print' function to the C++ Print callback.
+  global_print->Set(v8::String::New("Print"), v8::FunctionTemplate::New(Print));
+  m_context = v8::Context::New(cfg.get(),global_print);
 
   v8::Context::Scope context_scope(m_context);
 
