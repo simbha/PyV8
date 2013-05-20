@@ -1182,6 +1182,79 @@ AttributesScope::~AttributesScope() {
 }
 
 
+char* JsonAstBuilder::EscapeString(const char* string)
+{
+  static const char kHexDigits[] = "0123456789abcdef";
+  static const char kJsonSpecialChars[']'] = {
+    0, 0,  0, 0, 0, 0, 0, 98, 0, 116, 110, 0, 102, 114, 0,  0,
+    0, 0,  0, 0, 0, 0, 0,  0, 0,   0,   0, 0,   0,   0, 0,  0,
+    0, 0, 34, 0, 0, 0, 0,  0, 0,   0,   0, 0,   0,   0, 0, 47,
+    0, 0,  0, 0, 0, 0, 0,  0, 0,   0,   0, 0,   0,   0, 0,  0,
+    0, 0,  0, 0, 0, 0, 0,  0, 0,   0,   0, 0,   0,   0, 0,  0,
+    0, 0,  0, 0, 0, 0, 0,  0, 0,   0,   0, 0,  92 };
+
+  size_t string_length = strlen(string);
+  
+  // Start by allocating twice the length of the input string; this will 
+  // probably be sufficient for all strings. Otherwise, if twice the length 
+  // isn't enough, allocate 4 times the length and then 6 times the length 
+  // of the input string.
+  // 6 times the length is the maximum length the unescaped string could reach,
+  // and that's when each char expand to be written in the form '\u00XX'.
+  size_t unescaped_string_size = 2 * string_length + 1;
+  char* unescaped_string = NewArray<char>(unescaped_string_size);
+  size_t pos = 0;
+  char ch = *string;
+
+  for(int i = 4; i <= 6; i += 2)
+  {       
+    while(ch)
+    {
+      char special_char = ch > '\\' ? 0 : kJsonSpecialChars[ch];
+
+      if(special_char) {
+        unescaped_string[pos++] = '\\';
+        unescaped_string[pos++] = special_char;
+      }
+      else if(ch <= 0x1F) {
+        char unicode[] = { '\\',
+                           'u',
+                           '0',
+                           '0',
+                           kHexDigits[(ch >>  4) & 0xF], 
+                           kHexDigits[ ch        & 0xF] };
+
+        if(pos >= unescaped_string_size - sizeof(unicode))
+          break;  // not enough space - allocate more and try again.
+
+        memcpy(unescaped_string + pos, unicode, sizeof(unicode));
+        pos += sizeof(unicode);
+      }
+      else {
+        unescaped_string[pos++] = ch;
+      }
+
+      if(pos >= unescaped_string_size)
+        break;  // not enough space - allocate more and try again.
+
+      ch = *(++string);
+    }
+
+    if(!ch) {
+      unescaped_string[pos] = '\0';
+      return unescaped_string;
+    }
+
+    unescaped_string_size = i * string_length + 1;
+    char* new_unescaped = NewArray<char>(unescaped_string_size);
+    memcpy(new_unescaped, unescaped_string, string_length);
+    DeleteArray(unescaped_string);
+    unescaped_string = new_unescaped;
+  }
+  
+  return unescaped_string;
+}
+
 const char* JsonAstBuilder::BuildProgram(FunctionLiteral* program) {
   Init();
   Visit(program);
@@ -1205,13 +1278,17 @@ void JsonAstBuilder::AddAttributePrefix(const char* name) {
 void JsonAstBuilder::AddAttribute(const char* name, Handle<String> value) {
   SmartArrayPointer<char> value_string = value->ToCString();
   AddAttributePrefix(name);
-  Print("\"%s\"", *value_string);
+  char* escaped_value = EscapeString(*value_string);
+  Print("\"%s\"", escaped_value);
+  DeleteArray(escaped_value); 
 }
 
 
 void JsonAstBuilder::AddAttribute(const char* name, const char* value) {
   AddAttributePrefix(name);
-  Print("\"%s\"", value);
+  char* escaped_value = EscapeString(value);
+  Print("\"%s\"", escaped_value);
+  DeleteArray(escaped_value);  
 }
 
 
@@ -1345,6 +1422,12 @@ void JsonAstBuilder::VisitFunctionLiteral(FunctionLiteral* expr) {
   {
     AttributesScope attributes(this);
     AddAttribute("name", expr->name());
+    for (int i = 0; i < expr->scope()->num_parameters(); i++) {
+      //TODO: fix this with VisiteVariable(expr->scope()->parameter(i));
+      char param[64] = {0};
+      sprintf(param, "parameter[%d]", i);
+      AddAttribute(param, expr->scope()->parameter(i)->name());
+    }
   }
   VisitDeclarations(expr->scope()->declarations());
   VisitStatements(expr->body());

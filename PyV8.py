@@ -38,7 +38,7 @@ __all__ = ["ReadOnly", "DontEnum", "DontDelete", "Internal",
            "JSError", "JSObject", "JSArray", "JSFunction",
            "JSClass", "JSEngine", "JSContext",
            "JSObjectSpace", "JSAllocationAction",
-           "JSStackTrace", "JSStackFrame", "profiler", 
+           "JSStackTrace", "JSStackFrame", 
            "JSExtension", "JSLocker", "JSUnlocker", "AST"]
 
 class JSAttribute(object):

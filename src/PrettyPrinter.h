@@ -105,6 +105,7 @@ public:
   // blocks's body after the first line.
   static const int kAttributesIndentSize = 1;
 
+  char* EscapeString(const char* string);
   // Construct a JSON representation of a function literal.
   const char* BuildProgram(FunctionLiteral* program);
 
