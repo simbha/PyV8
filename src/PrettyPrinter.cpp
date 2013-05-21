@@ -133,7 +133,7 @@ void PrettyPrinter::VisitBlock(Block* node) {
 void PrettyPrinter::VisitVariableDeclaration(VariableDeclaration* node) {
   Print("var ");
   PrintLiteral(node->proxy()->name(), false);
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -142,7 +142,7 @@ void PrettyPrinter::VisitFunctionDeclaration(FunctionDeclaration* node) {
   PrintLiteral(node->proxy()->name(), false);
   Print(" = ");
   PrintFunctionLiteral(node->fun());
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -151,7 +151,7 @@ void PrettyPrinter::VisitModuleDeclaration(ModuleDeclaration* node) {
   PrintLiteral(node->proxy()->name(), false);
   Print(" = ");
   Visit(node->module());
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -160,14 +160,14 @@ void PrettyPrinter::VisitImportDeclaration(ImportDeclaration* node) {
   PrintLiteral(node->proxy()->name(), false);
   Print(" from ");
   Visit(node->module());
-  Print(";");
+  Print(";\n");
 }
 
 
 void PrettyPrinter::VisitExportDeclaration(ExportDeclaration* node) {
   Print("export ");
   PrintLiteral(node->proxy()->name(), false);
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -202,12 +202,12 @@ void PrettyPrinter::VisitModuleStatement(ModuleStatement* node) {
 
 void PrettyPrinter::VisitExpressionStatement(ExpressionStatement* node) {
   Visit(node->expression());
-  Print(";");
+  Print(";\n");
 }
 
 
 void PrettyPrinter::VisitEmptyStatement(EmptyStatement* node) {
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -231,7 +231,7 @@ void PrettyPrinter::VisitContinueStatement(ContinueStatement* node) {
     ASSERT(labels->length() > 0);  // guaranteed to have at least one entry
     PrintLiteral(labels->at(0), false);  // any label from the list is fine
   }
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -243,14 +243,14 @@ void PrettyPrinter::VisitBreakStatement(BreakStatement* node) {
     ASSERT(labels->length() > 0);  // guaranteed to have at least one entry
     PrintLiteral(labels->at(0), false);  // any label from the list is fine
   }
-  Print(";");
+  Print(";\n");
 }
 
 
 void PrettyPrinter::VisitReturnStatement(ReturnStatement* node) {
   Print("return ");
   Visit(node->expression());
-  Print(";");
+  Print(";\n");
 }
 
 
@@ -280,7 +280,7 @@ void PrettyPrinter::VisitDoWhileStatement(DoWhileStatement* node) {
   Visit(node->body());
   Print(" while (");
   Visit(node->cond());
-  Print(");");
+  Print(");\n");
 }
 
 
