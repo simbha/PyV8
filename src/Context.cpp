@@ -138,14 +138,30 @@ v8::Handle<v8::Value> Load(const v8::Arguments& args) {
     if (!ExecuteString(args.GetIsolate(),
                        source,
                        v8::String::New(*file),
-                       false,
-                       false)) {
+                       true,
+                       true)) {
       return v8::ThrowException(v8::String::New("Error executing file"));
     }
   }
   return v8::Undefined();
 }
 
+v8::Handle<v8::Value> AssertEquals(const v8::Arguments& args){
+    v8::HandleScope handle_scope(args.GetIsolate());
+    if (args.Length()==3){
+        v8::String::Utf8Value msg(args[2]);
+        if(args[0]->Equals(args[1])) {
+            fprintf(stdout, "[+] AssertEquals PASS %s", *msg);
+            return v8::True();
+        }else{
+            fprintf(stderr, "[-] AssertEquals ERROR %s", *msg);
+        }
+    }else{
+        fprintf(stderr, "[-] AssertEquals(op1, op2, string_msg).");
+    }
+    exit(-1);
+    return v8::False();
+}
 
 void CContext::Expose(void)
 {
@@ -270,6 +286,7 @@ CContext::CContext(py::object global, py::list extensions)
   // Bind the global 'print' function to the C++ Print callback.
   global_functions->Set(v8::String::New("Print"), v8::FunctionTemplate::New(Print));
   global_functions->Set(v8::String::New("Load"), v8::FunctionTemplate::New(Load));
+  global_functions->Set(v8::String::New("AssertEquals"), v8::FunctionTemplate::New(AssertEquals));
   m_context = v8::Context::New(cfg.get(),global_functions);
 
   v8::Context::Scope context_scope(m_context);
