@@ -126,7 +126,7 @@ void PrettyPrinter::VisitBlock(Block* node) {
   if (!node->is_initializer_block()) Print("{ ");
   PrintStatements(node->statements());
   if (node->statements()->length() > 0) Print(" ");
-  if (!node->is_initializer_block()) Print("}");
+  if (!node->is_initializer_block()) Print("}\n");
 }
 
 
@@ -270,7 +270,7 @@ void PrettyPrinter::VisitSwitchStatement(SwitchStatement* node) {
   ZoneList<CaseClause*>* cases = node->cases();
   for (int i = 0; i < cases->length(); i++)
     PrintCaseClause(cases->at(i));
-  Print("}");
+  Print("}\n");
 }
 
 
@@ -1250,9 +1250,9 @@ AttributesScope::~AttributesScope() {
   builder_->decrease_indent(JsonAstBuilder::kAttributesIndentSize);
   if (attribute_count_ > 1) {
     builder_->Print("\n");
-    builder_->PrintIndented("}");
+    builder_->PrintIndented("}\n");
   } else {
-    builder_->Print("}");
+    builder_->Print("}\n");
   }
   builder_->set_attributes(NULL);
 }
