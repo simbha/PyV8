@@ -120,7 +120,7 @@ public:
 class CJavascriptArray : public CJavascriptObject, public ILazyObject
 {
   py::object m_items;
-  size_t m_size;
+  Py_ssize_t m_size;
 public:
   class ArrayIterator 
     : public boost::iterator_facade<ArrayIterator, py::object const, boost::forward_traversal_tag, py::object>

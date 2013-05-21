@@ -400,6 +400,7 @@ void CAstNode::Expose(void)
 
     .def("toAST", &CAstFunctionLiteral::ToAST)
     .def("toJSON", &CAstFunctionLiteral::ToJSON)
+    .def("toJavascript", &CAstFunctionLiteral::ToString)
     ;
 
   py::class_<CAstSharedFunctionInfoLiteral, py::bases<CAstExpression> >("AstSharedFunctionInfoLiteral", py::no_init)
