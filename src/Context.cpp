@@ -139,7 +139,7 @@ v8::Handle<v8::Value> Load(const v8::Arguments& args) {
                        source,
                        v8::String::New(*file),
                        true,
-                       true)) {
+                       false)) {
       return v8::ThrowException(v8::String::New("Error executing file"));
     }
   }
